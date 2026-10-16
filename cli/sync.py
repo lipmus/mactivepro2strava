@@ -97,9 +97,10 @@ def microwear_workouts(config, start_date, end_date):
     return body.get("data", []) or []
 
 
-def build_tcx(workout, tcx_sport):
+def build_tcx(workout, tcx_sport, allow_no_gps=False):
     coords = [p.split("|") for p in (workout.get("coordinateArr") or "").split(",") if "|" in p]
-    if not coords:
+    has_gps = len(coords) >= 10
+    if not has_gps and not allow_no_gps:
         return None
 
     raw_dt = workout.get("dateTime")
@@ -112,11 +113,10 @@ def build_tcx(workout, tcx_sport):
     start_utc = start_local.astimezone(dt.timezone.utc)
     start_iso = start_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    duration = int(workout.get("duration") or len(coords))
+    duration = int(workout.get("duration") or len(coords) or 60)
     distance = float(workout.get("distance") or 0)
     calories = int(float(workout.get("calories") or 0))
     hrs = [int(h) for h in (workout.get("heartRateArr") or "").split(",") if h.strip().isdigit() and 25 <= int(h) <= 240]
-    step = duration / max(1, len(coords) - 1)
 
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -132,16 +132,30 @@ def build_tcx(workout, tcx_sport):
         "        <TriggerMethod>Manual</TriggerMethod>",
         "        <Track>",
     ]
-    for i, (lat, lon) in enumerate(coords):
+
+    if has_gps:
+        step = duration / max(1, len(coords) - 1)
+        count = len(coords)
+    else:
+        # No GPS: emit heart-rate samples only, spread across the session.
+        step = duration / max(1, min(len(hrs), 60) - 1)
+        coords = [None] * max(2, min(len(hrs), 60))
+        count = len(coords)
+
+    for i, pt in enumerate(coords):
         when = (start_utc + dt.timedelta(seconds=i * step)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        if hrs:
+            hr = hrs[min(len(hrs) - 1, i * len(hrs) // count)]
+        else:
+            hr = None
         lines.append("          <Trackpoint>")
         lines.append(f"            <Time>{when}</Time>")
-        lines.append("            <Position>")
-        lines.append(f"              <LatitudeDegrees>{lat}</LatitudeDegrees>")
-        lines.append(f"              <LongitudeDegrees>{lon}</LongitudeDegrees>")
-        lines.append("            </Position>")
-        if hrs:
-            hr = hrs[min(len(hrs) - 1, i * len(hrs) // len(coords))]
+        if pt is not None:
+            lines.append("            <Position>")
+            lines.append(f"              <LatitudeDegrees>{pt[0]}</LatitudeDegrees>")
+            lines.append(f"              <LongitudeDegrees>{pt[1]}</LongitudeDegrees>")
+            lines.append("            </Position>")
+        if hr:
             lines.append("            <HeartRateBpm>")
             lines.append(f"              <Value>{hr}</Value>")
             lines.append("            </HeartRateBpm>")
@@ -202,7 +216,8 @@ def main():
     ap = argparse.ArgumentParser(description="Sync Microwear workouts to Strava")
     ap.add_argument("--list", action="store_true", help="Lihat aktivitas di cloud")
     ap.add_argument("--sync", action="store_true", help="Upload aktivitas baru ke Strava")
-    ap.add_argument("--days", type=int, default=30, help="Jumlah hari (default: 30)")
+    ap.add_argument("--days", type=int, default=0, help="Jumlah hari ke belakang (default: 0 = hari ini saja)")
+    ap.add_argument("--include-no-gps", action="store_true", help="Sertakan sesi tanpa GPS (Indoor/Treadmill)")
     args = ap.parse_args()
 
     if not (args.list or args.sync):
@@ -239,7 +254,8 @@ def main():
 
     for w in sorted(workouts, key=lambda x: x.get("dateTime") or ""):
         coords = w.get("coordinateArr") or ""
-        if coords.count("|") < 10:
+        pts = coords.count("|") + (1 if coords else 0)
+        if pts < 10 and not args.include_no_gps:
             continue
         key = f"{w.get('timeStamp') or w.get('dateTime')}"
         if key in state:
@@ -250,7 +266,7 @@ def main():
         raw_dt = w.get("dateTime") or ""
         time_str = dt.datetime.strptime(raw_dt, "%Y-%m-%d %H:%M:%S").strftime("%d %b %H:%M") if raw_dt else ""
         name = f"{prefix} {time_str}"
-        tcx = build_tcx(w, tcx_sport)
+        tcx = build_tcx(w, tcx_sport, allow_no_gps=args.include_no_gps)
         if not tcx:
             continue
 

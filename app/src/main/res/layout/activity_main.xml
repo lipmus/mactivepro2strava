@@ -31,31 +31,88 @@
             android:textColor="#FFFFFF" />
     </RelativeLayout>
 
-    <!-- Main Sync Action Card -->
+    <!-- Filter Rentang Tanggal Card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#1E1E1E"
-        android:padding="20dp"
-        android:layout_marginBottom="20dp">
+        android:padding="12dp"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rentang Tanggal:"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_date_range"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hari Ini"
+            android:textColor="#4CAF50"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_preset_today"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="Hari Ini"
+                android:textSize="11sp"
+                android:backgroundTint="#2E7D32"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btn_preset_7days"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="7 Hari"
+                android:textSize="11sp"
+                android:backgroundTint="#333333"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btn_custom_date"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1.2"
+                android:text="Pilih Rentang"
+                android:textSize="11sp"
+                android:backgroundTint="#333333"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
 
         <Button
-            android:id="@+id/btn_sync_now"
+            android:id="@+id/btn_scan"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="SYNC KE STRAVA SEKARANG"
+            android:layout_height="44dp"
+            android:text="🔍 PINDAI AKTIVITAS"
             android:textStyle="bold"
-            android:textSize="15sp"
-            android:backgroundTint="#FC5200"
-            android:textColor="#FFFFFF" />
+            android:textSize="13sp"
+            android:backgroundTint="#1976D2"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp" />
 
         <ProgressBar
             android:id="@+id/pb_sync"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             style="?android:attr/progressBarStyleHorizontal"
             android:indeterminate="true" />
 
@@ -63,23 +120,97 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Sync Otomatis Tiap 1 Jam"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:text="Sync otomatis (hari ini, tiap 1 jam)"
+                android:textColor="#BBBBBB"
+                android:textSize="11sp" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/sw_auto_sync"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+    </LinearLayout>
 
+    <!-- Opsi Upload & Daftar Hasil Scan -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <CheckBox
+                android:id="@+id/cb_include_no_gps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="#FF9800" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sertakan sesi tanpa GPS (Indoor)"
+                android:textColor="#DDDDDD"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_item_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 sesi"
+                android:textColor="#888888"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#161616"
+            android:padding="4dp">
+
+            <LinearLayout
+                android:id="@+id/ll_workout_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_empty_notice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp"
+                    android:text="Tekan 'PINDAI AKTIVITAS' di atas untuk memuat daftar olahraga."
+                    android:textColor="#777777"
+                    android:gravity="center"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Sync Button -->
+        <Button
+            android:id="@+id/btn_sync_now"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="SYNC TERPILIH (0 SESI)"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:backgroundTint="#FC5200"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp" />
     </LinearLayout>
 
     <!-- Status & Log Header -->
@@ -88,23 +219,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Log Sinkronisasi"
-            android:textColor="#AAAAAA"
-            android:textStyle="bold"
-            android:textSize="13sp" />
+            android:textColor="#888888"
+            android:textSize="11sp" />
 
         <Button
             android:id="@+id/btn_copy_log"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="32dp"
             android:text="Salin Log"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:backgroundTint="#333333"
             android:textColor="#FFFFFF" />
     </LinearLayout>
@@ -112,10 +243,9 @@
     <ScrollView
         android:id="@+id/sv_log"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="70dp"
         android:background="#181818"
-        android:padding="12dp">
+        android:padding="6dp">
 
         <TextView
             android:id="@+id/tv_log"
@@ -123,8 +253,8 @@
             android:layout_height="wrap_content"
             android:textColor="#4CAF50"
             android:fontFamily="monospace"
-            android:textSize="12sp"
-            android:text="Siap digunakan. Tekan tombol di atas untuk sinkronisasi." />
+            android:textSize="11sp"
+            android:text="Siap. Pilih tanggal lalu tekan 'PINDAI AKTIVITAS'." />
     </ScrollView>
 
 </LinearLayout>

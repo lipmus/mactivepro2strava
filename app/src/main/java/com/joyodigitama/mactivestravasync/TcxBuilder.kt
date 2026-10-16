@@ -11,18 +11,28 @@ object TcxBuilder {
         val tcxBytes: ByteArray,
         val activityName: String,
         val sportType: String,
-        val pointCount: Int
+        val pointCount: Int,
+        val hasGps: Boolean
     )
 
-    fun build(workout: MicrowearClient.Workout): BuildResult? {
-        val coords = workout.coordinateArr.split(",").mapNotNull { p ->
+    /** Number of usable GPS coordinates in a workout. */
+    fun gpsPointCount(workout: MicrowearClient.Workout): Int = parseCoords(workout).size
+
+    private fun parseCoords(workout: MicrowearClient.Workout): List<Pair<String, String>> =
+        workout.coordinateArr.split(",").mapNotNull { p ->
             if (p.contains("|")) {
                 val parts = p.split("|")
-                if (parts.size >= 2) parts[0].trim() to parts[1].trim() else null
+                if (parts.size >= 2 && parts[0].isNotBlank() && parts[1].isNotBlank()) {
+                    parts[0].trim() to parts[1].trim()
+                } else null
             } else null
         }
 
-        if (coords.size < 10) return null
+    fun build(workout: MicrowearClient.Workout, allowNoGps: Boolean = false): BuildResult? {
+        val coords = parseCoords(workout)
+
+        val hasGps = coords.size >= 10
+        if (!hasGps && !allowNoGps) return null
 
         val localFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("Asia/Jakarta")
@@ -42,16 +52,19 @@ object TcxBuilder {
         val isBike = workout.type == 3 || workout.type == 142 || workout.type == 143
         val tcxSport = if (isBike) "Biking" else "Running"
         val stravaSport = if (isBike) "ride" else "run"
-        val titlePrefix = if (isBike) "Bersepeda" else "Lari"
+        val titlePrefix = when {
+            isBike -> "Bersepeda"
+            workout.type == 2 || workout.type == 141 -> "Jalan Kaki"
+            workout.type == 1 || workout.type == 140 -> if (hasGps) "Lari" else "Lari Indoor"
+            else -> "Olahraga"
+        }
 
         val titleFormat = SimpleDateFormat("dd MMM HH:mm", Locale.getDefault()).apply {
             timeZone = TimeZone.getTimeZone("Asia/Jakarta")
         }
         val activityName = "$titlePrefix ${titleFormat.format(startDate)}"
 
-        val duration = if (workout.duration > 0) workout.duration else coords.size
-        val stepSec = duration.toDouble() / maxOf(1, coords.size - 1)
-
+        val duration = if (workout.duration > 0) workout.duration else maxOf(60, coords.size)
         val hrs = workout.heartRateArr.split(",")
             .mapNotNull { it.trim().toIntOrNull() }
             .filter { it in 30..230 }
@@ -71,28 +84,53 @@ object TcxBuilder {
         <Track>
 """)
 
-        for ((i, pt) in coords.withIndex()) {
-            val ptTime = isoFormat.format(Date(startDate.time + (i * stepSec * 1000L).toLong()))
-            val hrVal = if (hrs.isNotEmpty()) {
-                val idx = minOf(hrs.size - 1, (i * hrs.size) / coords.size)
-                hrs[idx]
-            } else null
+        if (hasGps) {
+            val stepSec = duration.toDouble() / maxOf(1, coords.size - 1)
+            for ((i, pt) in coords.withIndex()) {
+                val ptTime = isoFormat.format(Date(startDate.time + (i * stepSec * 1000L).toLong()))
+                val hrVal = if (hrs.isNotEmpty()) {
+                    val idx = minOf(hrs.size - 1, (i * hrs.size) / coords.size)
+                    hrs[idx]
+                } else null
 
-            sb.append("""          <Trackpoint>
+                sb.append("""          <Trackpoint>
             <Time>$ptTime</Time>
             <Position>
               <LatitudeDegrees>${pt.first}</LatitudeDegrees>
               <LongitudeDegrees>${pt.second}</LongitudeDegrees>
             </Position>""")
-            if (hrVal != null) {
-                sb.append("""
+                if (hrVal != null) {
+                    sb.append("""
             <HeartRateBpm>
               <Value>$hrVal</Value>
             </HeartRateBpm>""")
-            }
-            sb.append("""
+                }
+                sb.append("""
           </Trackpoint>
 """)
+            }
+        } else {
+            val sampleCount = maxOf(2, minOf(hrs.size, 60))
+            val stepSec = duration.toDouble() / maxOf(1, sampleCount - 1)
+            for (i in 0 until sampleCount) {
+                val ptTime = isoFormat.format(Date(startDate.time + (i * stepSec * 1000L).toLong()))
+                val hrVal = if (hrs.isNotEmpty()) {
+                    val idx = minOf(hrs.size - 1, (i * hrs.size) / sampleCount)
+                    hrs[idx]
+                } else null
+
+                sb.append("""          <Trackpoint>
+            <Time>$ptTime</Time>""")
+                if (hrVal != null) {
+                    sb.append("""
+            <HeartRateBpm>
+              <Value>$hrVal</Value>
+            </HeartRateBpm>""")
+                }
+                sb.append("""
+          </Trackpoint>
+""")
+            }
         }
 
         sb.append("""        </Track>
@@ -106,7 +144,8 @@ object TcxBuilder {
             tcxBytes = sb.toString().toByteArray(Charsets.UTF_8),
             activityName = activityName,
             sportType = stravaSport,
-            pointCount = coords.size
+            pointCount = if (hasGps) coords.size else 0,
+            hasGps = hasGps
         )
     }
 }
