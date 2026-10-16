@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Microwear cloud only speaks plain HTTP (http://api.microwear.com/api/), and Android 9+
+  blocks cleartext by default. Cleartext is allowed for that one host only; everything else
+  stays HTTPS-only.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">api.microwear.com</domain>
+    </domain-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

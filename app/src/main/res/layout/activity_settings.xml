@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="#121212">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pengaturan Akun &amp; Jam"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ubah kredensial jika digunakan oleh user / jam lain."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Strava Client ID"
+            android:textColor="#FC5200"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/et_client_id"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="number" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Strava Client Secret"
+            android:textColor="#FC5200"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/et_client_secret"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="textPassword" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Strava Refresh Token"
+            android:textColor="#FC5200"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/et_refresh_token"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Microwear TokenID (Akun MActivePro)"
+            android:textColor="#2196F3"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/et_microwear_token"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Watch MAC Address"
+            android:textColor="#2196F3"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/et_watch_mac"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="28dp"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btn_save_settings"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="SIMPAN PENGATURAN"
+            android:textStyle="bold"
+            android:backgroundTint="#FC5200"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+</ScrollView>

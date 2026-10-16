@@ -1,0 +1,7 @@
+{
+  "client_id": "YOUR_STRAVA_CLIENT_ID",
+  "client_secret": "YOUR_STRAVA_CLIENT_SECRET",
+  "microwear_token": "YOUR_MICROWEAR_TOKEN_ID",
+  "watch_mac": "AA:BB:CC:DD:EE:FF",
+  "device_name": "Watch Ultra3"
+}

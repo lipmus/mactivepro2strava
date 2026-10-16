@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MActive Strava Sync</string>
+    <string name="settings_title">Pengaturan</string>
+    <string name="sync_button">Sync ke Strava Sekarang</string>
+    <string name="sync_running">Menyinkronkan…</string>
+    <string name="settings_button">Pengaturan</string>
+    <string name="auto_sync_label">Sync otomatis tiap 1 jam</string>
+    <string name="status_idle">Siap menyinkronkan.</string>
+    <string name="log_empty">Belum ada aktivitas.</string>
+</resources>
