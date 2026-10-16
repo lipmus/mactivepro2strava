@@ -1,7 +1,11 @@
 package com.joyodigitama.mactivestravasync
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.ScrollView
@@ -28,6 +32,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pbSync: ProgressBar
     private lateinit var svLog: ScrollView
 
+    /** Full log kept in memory so it can be copied even after scrolling. */
+    private val logBuffer = StringBuilder()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -44,14 +51,50 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_open_settings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        findViewById<Button>(R.id.btn_copy_log).setOnClickListener { copyLogToClipboard() }
+
+        // Restore the previous run's log so a failed sync survives an app restart.
+        config.lastLog.takeIf { it.isNotBlank() }?.let {
+            logBuffer.append(it)
+            tvLog.text = it
+            svLog.post { svLog.fullScroll(ScrollView.FOCUS_DOWN) }
+        }
 
         swAuto.setOnCheckedChangeListener { _, isChecked ->
             config.autoSyncEnabled = isChecked
             if (isChecked) schedulePeriodic() else WorkManager.getInstance(this).cancelUniqueWork(WORK_NAME)
-            append("\n[Otomatis] ${if (isChecked) "Aktif — cek tiap 1 jam" else "Dimatikan"}")
+            append("[Otomatis] ${if (isChecked) "Aktif — cek tiap 1 jam" else "Dimatikan"}")
         }
 
         if (config.autoSyncEnabled) schedulePeriodic()
+    }
+
+    /** Copies the whole log to the system clipboard and saves it to a file. */
+    private fun copyLogToClipboard() {
+        val text = logBuffer.toString().ifBlank { "Belum ada log." }
+
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("MActive Strava Sync Log", text))
+
+        // Also drop it on shared storage so it can be pulled with: adb pull /sdcard/Download/
+        val saved = try {
+            val dir = getExternalFilesDir(null)
+            val file = java.io.File(dir, "sync_log.txt")
+            file.writeText(text)
+            val publicDir = java.io.File("/sdcard/Download")
+            if (publicDir.canWrite()) java.io.File(publicDir, "mactive_sync_log.txt").writeText(text)
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Gagal menyimpan log ke berkas", e)
+            false
+        }
+
+        Toast.makeText(
+            this,
+            if (saved) "Log disalin ke clipboard + /sdcard/Download/mactive_sync_log.txt"
+            else "Log disalin ke clipboard",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun schedulePeriodic() {
@@ -63,13 +106,18 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /** Appends to both the visible TextView and logcat, and persists the log. */
     private fun append(line: String) {
-        tvLog.append(line + "\n")
+        Log.i(TAG, line)
+        logBuffer.append(line).append('\n')
+        tvLog.text = logBuffer.toString()
         svLog.post { svLog.fullScroll(ScrollView.FOCUS_DOWN) }
+        config.lastLog = logBuffer.toString()
     }
 
     private fun runSync() {
         pbSync.visibility = ProgressBar.VISIBLE
+        logBuffer.clear()
         tvLog.text = ""
 
         lifecycleScope.launch {
@@ -150,12 +198,15 @@ class MainActivity : AppCompatActivity() {
 
             "$uploaded terkirim, $skipped dilewati"
         } catch (e: Exception) {
-            withContext(Dispatchers.Main) { append("GAGAL: ${e.message?.take(200)}") }
-            "Gagal: ${e.message?.take(80)}"
+            Log.e(TAG, "SyncAll failed", e)
+            val detail = e.message ?: e.javaClass.simpleName
+            withContext(Dispatchers.Main) { append("GAGAL: $detail\n${e.stackTraceToString().take(300)}") }
+            "Gagal: $detail"
         }
     }
 
     companion object {
+        private const val TAG = "MActiveSync"
         private const val WORK_NAME = "mactive_strava_periodic_sync"
     }
 }

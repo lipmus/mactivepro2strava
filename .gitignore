@@ -15,3 +15,10 @@ app/build/
 mactive-strava-sync.apk
 prefs.xml
 *.idsig
+mactive_prefs.xml
+prefs.xml
+new_strava_tokens.json
+test.tcx
+cli/config.json
+cli/strava_tokens.json
+cli/uploaded.json

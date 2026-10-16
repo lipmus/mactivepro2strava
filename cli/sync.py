@@ -268,8 +268,13 @@ def main():
                 print(f"  BERHASIL: https://www.strava.com/activities/{st['activity_id']}")
                 state[key] = st["activity_id"]
                 save_json(STATE_PATH, state)
+            elif "duplicate" in (st.get("error") or "").lower():
+                # Already on Strava from an earlier run — treat as done, not a failure.
+                print(f"  SUDAH ADA: {st['error']}")
+                state[key] = 0
+                save_json(STATE_PATH, state)
             else:
-                print(f"  Response: {st.get('status')}")
+                print(f"  Response: {st.get('status')} {st.get('error') or ''}")
         except Exception as e:
             print(f"  Gagal: {e}")
 

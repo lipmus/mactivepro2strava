@@ -39,6 +39,10 @@ class SyncConfig(context: Context) {
         get() = prefs.getBoolean("auto_sync_enabled", false)
         set(v) = prefs.edit().putBoolean("auto_sync_enabled", v).apply()
 
+    var lastLog: String
+        get() = prefs.getString("last_log", "") ?: ""
+        set(v) = prefs.edit().putString("last_log", v).apply()
+
     fun isUploaded(key: String): Boolean {
         return prefs.getBoolean("up_$key", false)
     }
