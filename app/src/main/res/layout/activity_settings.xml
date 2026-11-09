@@ -98,6 +98,59 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Email Akun MActivePro (untuk login otomatis)"
+            android:textColor="#2196F3"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/et_microwear_email"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password Akun MActivePro"
+            android:textColor="#2196F3"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disimpan sebagai MD5 — sama seperti yang dikirim MActivePro. Dipakai untuk memperbarui token otomatis saat kedaluwarsa."
+            android:textColor="#777777"
+            android:textSize="11sp"
+            android:layout_marginTop="2dp" />
+        <EditText
+            android:id="@+id/et_microwear_password"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="#FFFFFF"
+            android:background="#1E1E1E"
+            android:padding="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Kosongkan bila tidak ingin mengubah"
+            android:textColorHint="#666666"
+            android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/btn_test_login"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="TES LOGIN MICROWEAR"
+            android:textSize="12sp"
+            android:backgroundTint="#1976D2"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Watch MAC Address"
             android:textColor="#2196F3"
             android:textStyle="bold" />

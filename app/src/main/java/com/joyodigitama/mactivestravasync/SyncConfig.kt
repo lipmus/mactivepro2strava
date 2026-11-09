@@ -11,6 +11,16 @@ class SyncConfig(context: Context) {
         get() = prefs.getString("microwear_token", "") ?: ""
         set(v) = prefs.edit().putString("microwear_token", v.trim()).apply()
 
+    /** Microwear account email, used to get a fresh token when the old one expires. */
+    var microwearEmail: String
+        get() = prefs.getString("microwear_email", "") ?: ""
+        set(v) = prefs.edit().putString("microwear_email", v.trim()).apply()
+
+    /** MD5 of the Microwear account password, exactly as MActivePro sends it (cmdID 2002). */
+    var microwearPasswordHash: String
+        get() = prefs.getString("microwear_password_hash", "") ?: ""
+        set(v) = prefs.edit().putString("microwear_password_hash", v.trim().lowercase()).apply()
+
     var watchMac: String
         get() = prefs.getString("watch_mac", "") ?: ""
         set(v) = prefs.edit().putString("watch_mac", v.trim()).apply()

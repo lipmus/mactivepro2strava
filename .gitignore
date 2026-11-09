@@ -22,3 +22,6 @@ test.tcx
 cli/config.json
 cli/strava_tokens.json
 cli/uploaded.json
+_logs/
+_bad.xml
+_prefs.xml

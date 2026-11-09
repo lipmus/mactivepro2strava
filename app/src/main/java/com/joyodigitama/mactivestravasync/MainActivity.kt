@@ -180,17 +180,28 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val microwear = MicrowearClient(config)
+            var scanError: String? = null
             val workouts = withContext(Dispatchers.IO) {
                 try {
                     microwear.fetchWorkouts(startDateStr, endDateStr)
+                } catch (e: MicrowearAuthException) {
+                    Log.e(TAG, "Microwear auth failed", e)
+                    scanError = e.message
+                    emptyList()
                 } catch (e: Exception) {
                     Log.e(TAG, "Scan failed", e)
+                    scanError = e.message ?: e.javaClass.simpleName
                     emptyList()
                 }
             }
 
             pbSync.visibility = ProgressBar.GONE
             btnScan.isEnabled = true
+
+            scanError?.let { err ->
+                append("GAGAL memindai: " + err)
+                Toast.makeText(this@MainActivity, err, Toast.LENGTH_LONG).show()
+            }
 
             currentItems.clear()
             val includeNoGps = cbIncludeNoGps.isChecked
