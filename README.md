@@ -27,10 +27,21 @@ Watch  ──BLE──▶  MActivePro  ──▶  api.microwear.com  ──▶  
 ```
 
 1. Finish your workout; open MActivePro once so the watch syncs to the cloud.
-2. Open **MActive Strava Sync** and tap **SYNC KE STRAVA SEKARANG**, or enable the 1-hour background sync.
-3. The app pulls the workout from the Microwear cloud, converts it to **TCX**, and uploads it to Strava.
+2. Open **MActive Strava Sync**. It scans today's sessions automatically.
+3. Tick the sessions you want, then tap **SYNC TERPILIH (N SESI)**.
+4. The app pulls each workout from the Microwear cloud, converts it to **TCX**, and uploads it to Strava.
 
 TCX is used rather than GPX because Strava only reads heart rate from TCX's `<HeartRateBpm>` element; the `<gpxtpx:hr>` GPX extension is silently dropped on upload.
+
+### Token expiry is handled automatically
+
+The Microwear cloud `tokenID` stops working after a few weeks and the API then answers
+`success: false, messsage: "You have logged out. Please log in again"`.
+
+Old versions surfaced that as an empty list, which looked like "there are no workouts".
+The app now detects it, re-authenticates via `cmdID 2002` with the stored account
+credentials, caches the new token, and retries the fetch — so no manual token hunting
+is needed once the email + password are saved in Settings.
 
 ---
 
